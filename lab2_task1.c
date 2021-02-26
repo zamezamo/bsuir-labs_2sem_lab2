@@ -1,8 +1,11 @@
-/* 24/02/21
-* Замойский Артем 8 вариант
-* Структура содержит информацию о сотрудниках фирмы: шифр отдела (число), фамилию (указатель), 
-* вложенное объединение – дату приёма на работу (строка фиксированной длины) и сумму оклада. 
-* Найти сотрудников с минимальным окладом. Удалить сотрудников, принятых на работу в заданный день.
+/* 
+* 24/02/21
+* Artyom Zamoyskiy
+*
+* Task:
+* RU: Структура содержит информацию о сотрудниках фирмы: шифр отдела (число), фамилию (указатель), 
+*     вложенное объединение – дату приёма на работу (строка фиксированной длины) и сумму оклада. 
+*     Найти сотрудников с минимальным окладом. Удалить сотрудников, принятых на работу в заданный день.
 */
 
 #include <stdio.h>
@@ -58,36 +61,42 @@ void input(struct employees *emp, int f)
                 break;
         }
 
-        //запрос на ввод даты
-        printf("Enter a date of employment of %d employee - ", i + 1);
-
-        //проверка на ввод и ввод даты приема на работу
-        while (1)
+        if (i % 2 != 0)
         {
-            scanf("%s", emp[i].empl.date);
-            fflush(stdin);
-            if ((emp[i].empl.date[0] < '0' || emp[i].empl.date[0] > '3') && (emp[i].empl.date[3] < '0' || (emp[i].empl.date[3]) > '1') && emp[i].empl.date[2] != '.' && emp[i].empl.date[5] != '.')
+            //запрос на ввод даты
+            printf("Enter a date of employment of %d employee - ", i + 1);
+
+            //проверка на ввод и ввод даты приема на работу
+            while (1)
             {
-                printf("Wrong date! Follow this example - xx.xx.xx (31.12.20)");
+                scanf("%s", emp[i].empl.date);
+                fflush(stdin);
+                if (emp[i].empl.date[0] < '0' || emp[i].empl.date[0] > '3' || emp[i].empl.date[3] < '0' || emp[i].empl.date[3] > '1' || emp[i].empl.date[2] != '.' || emp[i].empl.date[5] != '.')
+                {
+                    printf("Wrong date! Follow this example - xx.xx.xx (31.12.20) - ");
+                }
+                else
+                    break;
             }
-            else
-                break;
         }
 
-        //запрос на ввод суммы оклада
-        printf("Enter a sum of salary of %d employee - ", i + 1);
-
-        //проверка на ввод и ввод суммы оклада
-        while (1)
+        else
         {
-            scanf("%d", &emp[i].empl.sum_salary);
-            fflush(stdin);
-            if (emp[i].empl.sum_salary > 5000 || emp[i].empl.sum_salary < 0)
+            //запрос на ввод суммы оклада
+            printf("Enter a sum of salary of %d employee - ", i + 1);
+
+            //проверка на ввод и ввод суммы оклада
+            while (1)
             {
-                printf("Wrong number! 0<..<5000 - ");
+                scanf("%d", &emp[i].empl.sum_salary);
+                fflush(stdin);
+                if (emp[i].empl.sum_salary > 5000 || emp[i].empl.sum_salary < 0)
+                {
+                    printf("Wrong number! 0<..<5000 - ");
+                }
+                else
+                    break;
             }
-            else
-                break;
         }
     }
 }
@@ -96,79 +105,68 @@ void input(struct employees *emp, int f)
 void output(struct employees *emp, int c)
 {
     int i = 0;
+    printf("\n");
     while (i < c)
     {
         printf("Code of %d employee - %d\n", i + 1, emp[i].code);
         printf("Surname of %d employee - %s\n", i + 1, emp[i].surname);
-        printf("Date of employment of %d employee - %s\n", i + 1, emp[i].empl.date);
-        printf("Sum of salary of %d employee - %s\n", i + 1, emp[i].empl.sum_salary);
+        if (i % 2 != 0)
+            printf("Date of employment of %d employee - %s\n", i + 1, emp[i].empl.date);
+        else
+            printf("Sum of salary of %d employee - %d\n", i + 1, emp[i].empl.sum_salary);
+        printf("\n");
         i++;
     }
 }
-//функция поиска по фамилии
+
+//функция поиска по минимальной сумме оклада
 void search(struct employees *emp, int f)
 {
-    char tsurname[20];
-    printf("Enter a surname of employee which you want to find - ");
-    while (1)
+    int tmp = emp[0].empl.sum_salary;
+    for (int i = 0; i < f; i = i + 2)
     {
-        scanf("%s", tsurname);
-        fflush(stdin);
-        if (tsurname[0] > 'Z' || tsurname[0] < 'A')
-        {
-            printf("Wrong text! Start with a capital English letter - ");
-        }
-        else
-            break;
+        if (emp[i].empl.sum_salary < tmp)
+            tmp = emp[i].empl.sum_salary;
     }
-    int tmp = 0;
-    for (int i = 0; i < f; i++)
-    {
-        if (strcmp(tsurname, emp[i].surname) == 0)
-        {
-            printf("Found!\n%d %s %s %d\n", emp[i].code, emp[i].surname, emp[i].empl.date, emp[i].empl.sum_salary);
-            tmp++;
-        }
-    }
-    if (tmp == 0)
-        printf("Not found!");
+    printf("Found: %d\n", tmp);
 }
 
-//функция удаления сотрудника с окладом, ниже заданного
+//функция удаления сотрудника принятого в данный день
 void delete (struct employees *emp, int f)
 {
-    int salary;
-    printf("Enter a sum of salary to delete sum of salaries, which are smaller - ");
+    char date[10];
+    printf("Enter a date - ");
     while (1)
     {
-        scanf("%d", &salary);
+        scanf("%s", date);
         fflush(stdin);
-        if (salary > 5000 || salary < 0)
+        if (date[0] < '0' || date[0] > '3' || date[3] < '0' || date[3] > '1' || date[2] != '.' || date[5] != '.')
         {
-            printf("Wrong number! 0<..<5000 - ");
+            printf("Wrong date! Follow this example - xx.xx.xx (31.12.20) - ");
         }
         else
             break;
     }
+
     int p = 0;
     while (p < f)
     {
-        if (emp[p].empl.sum_salary < salary)
+        if (emp[p].empl.date == date)
         {
             for (int k = p; k < f - 1; k++)
             {
-                emp[k].empl.sum_salary = emp[k + 1].empl.sum_salary;
                 emp[k].surname = emp[k + 1].surname;
                 emp[k].code = emp[k + 1].code;
-                strcpy(emp[k].empl.date, emp[k + 1].empl.date);
             }
             f--;
         }
         else
-            p++;
+            p=p+2;
     }
-    for (int i = 0; i < f; i++)
-        printf("%s %d\n", emp[i].surname, emp[i].empl.sum_salary);
+    
+    for (int i = 0; i < f; i=i+2)
+        printf("%d %s\n", emp[i].code, emp[i].surname);
+
 }
 
 int main()
@@ -191,26 +189,31 @@ int main()
     struct employees *emp = (struct employees *)malloc(n * sizeof(struct employees));
     input(emp, n);
     fflush(stdin);
-    output(emp, n);
     int operation;
     do
     {
-        printf("What you want to do?\nEnter 1 to found surname of employee\n");
-        printf("Enter 2 to delete employer with smaller sum of salary than the specified\nEnter 3 to exit\nEnter number: ");
+        printf("\n  ---\nWhat you want to do?\nEnter 1 to output all data\n");
+        printf("Enter 2 to find employee with a minimum salary\nEnter 3 to delete the employee hired on the given day");
+        printf("\nEnter 4 to exit\nEnter number: ");
         scanf("%d", &operation);
         switch (operation)
         {
         case 1:
         {
-            search(emp, n);
+            output(emp, n);
             break;
         }
         case 2:
         {
-            delete (emp, n);
+            search(emp, n);
             break;
         }
         case 3:
+        {
+            delete (emp, n);
+            break;
+        }
+        case 4:
         {
             free(emp);
             return 0;
